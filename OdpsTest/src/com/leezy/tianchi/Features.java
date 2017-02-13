@@ -7,6 +7,7 @@ import com.aliyun.odps.data.Record;
 import com.aliyun.odps.mapred.MapperBase;
 import com.aliyun.odps.mapred.ReducerBase;
 import com.aliyun.odps.mapred.TaskContext;
+import com.alibaba.fastjson.*;
 
 public class Features {
 	public static class FeatureMapper extends MapperBase {
@@ -44,6 +45,24 @@ public class Features {
 		@Override
 		public void reduce(Record key, Iterator<Record> values, TaskContext context)
 				throws IOException {
+			while(values.hasNext()){
+				int elementNum = 0; //the number of the element that visited
+				int elementWaitTime = 0;// the time for visit a element
+				Record value = values.next();
+				String elementInfo = value.getString("a1");
+				JSONArray elementArray = JSON.parseArray(elementInfo);
+				for(int i=0,len=elementArray.size();i<len;i++){
+		            JSONObject temp=  elementArray.getJSONObject(i);
+		            if(temp.getInteger("type") == 0){//lost focus add the time
+		            	elementWaitTime +=temp.getInteger("time");
+		            }
+		            else {// on focus increase the element numbet and minus the time 
+		            	elementNum ++;
+		            	elementWaitTime -= temp.getInteger("time");
+		            }
+		        }
+				
+			}
 			
 		}
 
