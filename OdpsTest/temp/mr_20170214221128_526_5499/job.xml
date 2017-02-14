@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><configuration>
+<property><name>odps.stage.reducer.num</name><value>0</value></property>
+<property><name>odps.mapred.local.record.download.limit</name><value>100</value></property>
+<property><name>odps.mapred.local.temp.retain</name><value>false</value></property>
+<property><name>odps.mapred.map.class</name><value>com.leezy.tianchi.Features$FeatureMapper</value></property>
+<property><name>odps.mapred.job.name</name><value>mr_20170214221128_526_5499</value></property>
+<property><name>odps.mapred.resources</name><value/></property>
+<property><name>odps.mapred.local.download.mode</name><value>AUTO</value></property>
+<property><name>odps.mapred.output.desc</name><value>[{"tblName":"renjiresult","partSpec":{},"label":"__default__"}]</value></property>
+</configuration>

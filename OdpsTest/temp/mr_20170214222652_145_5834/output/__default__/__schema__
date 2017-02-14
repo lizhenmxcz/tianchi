@@ -1,0 +1,3 @@
+project=example_project
+table=renjiresult
+columns=id:BIGINT,elementNum:DOUBLE,elementAvgWaitTime:DOUBLE,label:STRING

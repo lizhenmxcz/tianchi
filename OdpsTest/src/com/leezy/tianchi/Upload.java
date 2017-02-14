@@ -45,7 +45,7 @@ public class Upload {
         for (int i = 0; i < lines.length; i++) {
           //String[] ss = lines[i].split(",");
           //record.set(0, Long.parseLong(ss[0].trim()));
-          record.set(0, lines[i].trim());
+          record.set("id", lines[i].trim());
           context.write(record);
         }
       } catch (FileNotFoundException ex) {
