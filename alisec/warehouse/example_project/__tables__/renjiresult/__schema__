@@ -1,0 +1,3 @@
+project=example_project
+table=renjiresult
+columns=id:BigInt,elementNum:BigInt,elementAvgWaitTime:BigInt,leftButtonNum:BigInt,rightButtonNum:BigInt,allButtonNum:BigInt,avgButtonInterval:BigInt,label:STRING

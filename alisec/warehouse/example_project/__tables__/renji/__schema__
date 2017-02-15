@@ -1,0 +1,3 @@
+project=example_project
+table=renji
+columns=id:BIGINT,label:STRING,a1:STRING,a3:STRING,a4:STRING,a5:STRING,a7:STRING
