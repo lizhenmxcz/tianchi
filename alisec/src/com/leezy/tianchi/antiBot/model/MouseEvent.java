@@ -1,6 +1,6 @@
 package com.leezy.tianchi.antiBot.model;
 
-public class MouseEvent {
+public class MouseEvent  implements Comparable<MouseEvent> {
 	private int x;//the x coordinate
 	private int y;//the y coordinate
 	private int time;//the time of event occurred
@@ -21,6 +21,12 @@ public class MouseEvent {
 	}
 	public void setTime(int time) {
 		this.time = time;
+	}
+	@Override
+	public int compareTo(MouseEvent o) {
+		// TODO Auto-generated method stub
+		
+		return this.time - o.getTime() ;
 	}
 
 }

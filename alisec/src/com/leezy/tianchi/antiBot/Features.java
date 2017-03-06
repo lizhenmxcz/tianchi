@@ -134,7 +134,7 @@ public class Features {
 				String sliderInfo = record.getString("a4");
 				List<String> listSlider=new ArrayList<String>();  
 			       //Pattern p = Pattern.compile("(\\{{^\\}}\\})"); 
-			    System.out.println(sliderInfo);
+			    //System.out.println(sliderInfo);
 	            Matcher mslider = p.matcher(sliderInfo);  
 			    while(mslider.find()){  
 			    	listSlider.add(mslider.group().substring(0, mslider.group().length()));  
@@ -173,6 +173,10 @@ public class Features {
 			result.setBigint("sliderysteady", sliderysteady);
 			result.setBigint("slideravgspeed", slideravgspeed);
 			result.setBigint("sliderconstantspeed", sliderconstantspeed);
+			//long label = record.getString("label").equals("1")?1:0;
+			//result.setString("label", label);
+			long label = Integer.valueOf(record.getString("label"));
+			result.setBigint("label", label);
 	        context.write(result);
 		}	
 	}
