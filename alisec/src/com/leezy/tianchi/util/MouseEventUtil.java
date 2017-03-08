@@ -5,112 +5,165 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import com.leezy.tianchi.antiBot.model.MouseEvent;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.leezy.tianchi.antiBot.model.MouseMoveEvent;
 
 public class MouseEventUtil {
-	private List<MouseEvent> mouthList;
+	private List<MouseMoveEvent> mouseEventList;
+	final Pattern p = Pattern.compile("(\\{([^\\}]+)\\})"); 
 	
-	
-	public MouseEventUtil(List<MouseEvent> mouthList) {
-		Collections.sort(mouthList);
-		this.mouthList = mouthList;
+	public MouseEventUtil(List<MouseMoveEvent> mouseEventList) {
+		Collections.sort(mouseEventList);
+		this.mouseEventList = mouseEventList;
 	}
+	public MouseEventUtil(){
+		//this.mouseEventList = parseMouseMoveEvent(str);
+	}
+             
+	  
 	public int speedVariance(){
-		return (int) variance(getSpeedList(mouthList));
+		return variance(getSpeedList(mouseEventList));
+	}
+	public void parseMouseMoveEvent(String str){
+		List<MouseMoveEvent> list = new ArrayList<MouseMoveEvent>();
+		List<String> listSlider=new ArrayList<String>();  
+        Matcher mslider = p.matcher(str);  
+	    while(mslider.find()){  
+	    	listSlider.add(mslider.group().substring(0, mslider.group().length()));  
+	    } 
+		for(int j = 0;j< listSlider.size();j++){
+			JsonObject temp=  new JsonParser().parse(listSlider.get(j)).getAsJsonObject();
+			int x = temp.get("x").getAsInt();
+			int y = temp.get("y").getAsInt();
+			int time = temp.get("time").getAsInt();
+			list.add(new MouseMoveEvent(x,y,time));
+		}
+		Collections.sort(list);
+		this.mouseEventList = list;  
+	}
+	public void parseSliderEvent(String str){
+		List<MouseMoveEvent> list = new ArrayList<MouseMoveEvent>();
+		List<String> listSlider=new ArrayList<String>();  
+        Matcher mslider = p.matcher(str);  
+	    while(mslider.find()){  
+	    	listSlider.add(mslider.group().substring(0, mslider.group().length()));  
+	    } 
+		for(int j = 0;j< listSlider.size();j++){
+			JsonObject temp=  new JsonParser().parse(listSlider.get(j)).getAsJsonObject();
+			list.add(new MouseMoveEvent(temp.get("x").getAsInt(),
+					temp.get("y").getAsInt(),temp.get("t").getAsInt()));
+		}
+		Collections.sort(list);
+		this.mouseEventList= list;
 	}
 	public int accelerationVariance(){
-		List<Integer> speedList = getSpeedList(mouthList);
-		List<Integer> timeList = getTimeList(this.mouthList);
+		List<Integer> speedList = getSpeedList(mouseEventList);
+		//System.out.println(speedList.toString());
+		List<Integer> timeList = getTimeList(this.mouseEventList);
 		List<Integer> accelerationList = new ArrayList<Integer>();
 		for(int i =0,j= 1;i< speedList.size()-1&&j<timeList.size()-1;i++,j++){
 			int speedInterval = Math.abs(speedList.get(i+1)-speedList.get(i));
 			int timeInterval = Math.abs(timeList.get(i+1)-timeList.get(i));
-			accelerationList.add(speedInterval/timeInterval);
+			if(timeInterval == 0) accelerationList.add(0);
+			else accelerationList.add(speedInterval/timeInterval);
 		}
-		return (int) variance(accelerationList);
+		return variance(accelerationList);
 	}
-	public  List<Integer> getSpeedList(List<MouseEvent> list){		
-		List<Integer> speedList = new ArrayList<Integer>();
- 		for(int i = 0; i< list.size()-1; i++){
- 			MouseEvent m1 = list.get(i);
- 			MouseEvent m2 = list.get(i+1);
-			int timeInterval = Math.abs(m2.getTime()-m1.getTime());
+	public int getTotalTime(){
+		int length = mouseEventList.size();
+		return mouseEventList.get(length-1).getTime()-mouseEventList.get(0).getTime();
+	}
+	public int getTotalDistance(){
+		List<Integer> distanceList = getDistanceList(mouseEventList);
+		int totalD = 0;
+		for(int distance:distanceList){
+			totalD+=distance;
+		}
+		return totalD;
+	}
+	public List<Integer> getDistanceList(List<MouseMoveEvent> list){
+		List<Integer> distanceList = new ArrayList<Integer>();
+		for(int i = 0; i< list.size()-1; i++){
+			MouseMoveEvent m1 = list.get(i);
+ 			MouseMoveEvent m2 = list.get(i+1);
 			int distanceInterval = (int) Math.sqrt(Math.pow(m2.getX()-m1.getX(), 2)+
 					Math.pow(m2.getY()-m1.getY(), 2));
-			speedList.add(distanceInterval/timeInterval);
+			distanceList.add(distanceInterval);
+		}
+		return distanceList;
+	}
+	public  List<Integer> getSpeedList(List<MouseMoveEvent> list){		
+		List<Integer> speedList = new ArrayList<Integer>();
+ 		for(int i = 0; i< list.size()-1; i++){
+ 			MouseMoveEvent m1 = list.get(i);
+ 			MouseMoveEvent m2 = list.get(i+1);
+			int timeInterval = Math.abs(m2.getTime()-m1.getTime());
+			double distanceInterval = (int) Math.sqrt(Math.pow(m2.getX()-m1.getX(), 2)+
+					Math.pow(m2.getY()-m1.getY(), 2));
+			if(timeInterval == 0) speedList.add(0);
+			else speedList.add((int)(1000*distanceInterval/timeInterval));
 		}
  		return speedList;
 	}
-	public  List<Integer> getTimeList(List<MouseEvent> list){
+	public  List<Integer> getTimeList(List<MouseMoveEvent> list){
 		List<Integer> timeList = new ArrayList<Integer>();
 		for(int i = 0; i< list.size(); i++){
 			timeList.add(list.get(i).getTime());
 		}
 		return timeList;
 	}
-	public static int tryTimes(List<Integer> xList){
-		int times = 1;
-		for(int i = 1;i< xList.size();i++){
-			if(xList.get(i) < xList.get(i-1)) 
-				times ++;
+	public  int getAvgSpeed(){
+		List<Integer> speedList = getSpeedList(mouseEventList);
+		int totalSpeed = 0;
+		int speedSize = 0;
+		for(int speed:speedList){
+			totalSpeed += speed;
+			speedSize += 1;
 		}
-		return times;
+		return speedSize == 0?0:totalSpeed/speedSize;
 	}
-	public static int isConstantSpeed(List<Integer> tList,List<Integer> xList){
-		for(int i = 1;i< xList.size()-1;i++){
-			int distance1 = Math.abs(xList.get(i)-xList.get(i-1));
-			int distance2 = Math.abs(xList.get(i+1)-xList.get(i));
-			int time1 = tList.get(i)-tList.get(i-1);
-			int time2 = tList.get(i+1)-tList.get(i);
-			if(distance1/time1 != distance2/time2) 
-				return 0;
+	public int sliderYVariance(){
+		List<Integer> yList = new ArrayList<Integer>();
+		for(int i = 0; i< mouseEventList.size(); i++){
+			yList.add(mouseEventList.get(i).getY());
 		}
-		return 1;
+		return variance(yList);
 	}
-	public static int avgSpeed(List<Integer> tList,List<Integer> xList){
-		int distance = 0;
-		for(int i = 1;i< xList.size();i++){
-			distance += Math.abs(xList.get(i)-xList.get(i-1));
-		}
-		int timeInterval = tList.get(tList.size()-1)-tList.get(0);
-		return distance/timeInterval;
-	}
-	public static int isYSteady(List<Integer> yList){
-		HashSet<Integer> hs = new HashSet<Integer>(yList);
-		return hs.size()>1?0:1;
-	}
-	public static int totalDistance(List<Integer> xList){
-		int distance = 0;
-		for(int i = 1;i< xList.size();i++){
-			distance += Math.abs(xList.get(i)-xList.get(i-1));
-		}
-		return distance;
-	}
-	public static int totalTime(List<Integer> tList){
-		return tList.get(tList.size()-1)-tList.get(0);
-	}
-	public static double variance(List<Integer> yList) {   
-	        int m=yList.size();  
+	public int variance(List<Integer> list) {   
+	        int m = list.size();  
 	        double sum=0;  
 	        for(int i=0;i<m;i++){//求和  
-	            sum+=(double)yList.get(i);  
+	            sum += list.get(i);  
 	        }  
 	        double dAve=sum/m;//求平均值  
-	        double dVar=0;  
+	        int dVar=0;  
 	        for(int i=0;i<m;i++){//求方差  
-	            dVar+=(yList.get(i)-dAve)*(yList.get(i)-dAve);  
+	            dVar+=(list.get(i)-dAve)*(list.get(i)-dAve);  
 	        }  
-	        return dVar/m;  
+	        return m==0?0:dVar/m;  
 	}  
     public static void main(String[] args){
-    	List<Integer> tList=Arrays.asList(0,12,34,45,56,78);
-    	List<Integer> t1List=Arrays.asList(0,1,3,5,6,8);
-    	List<Integer> x1List=Arrays.asList(0,2,6,10,12,16);
-    	List<Integer> y1List=Arrays.asList(2,2,2,2,2);
-    	List<Integer> xList=Arrays.asList(1208,1322,1300,1450,1565,1789);
-    	List<Integer> yList=Arrays.asList(100,112,134,145,156,178);
+    	MouseMoveEvent m1 = new MouseMoveEvent(1,2,3);
+    	MouseMoveEvent m2 = new MouseMoveEvent(2,3,4);
+    	MouseMoveEvent m3 = new MouseMoveEvent(4,2,6);
+    	MouseMoveEvent m4 = new MouseMoveEvent(5,6,8);
+    	MouseMoveEvent m5 = new MouseMoveEvent(6,6,9);
+    	List<MouseMoveEvent> list = new ArrayList<MouseMoveEvent>();
+    	list.add(m1);
+    	list.add(m2);
+    	list.add(m3);
+    	list.add(m4);
+    	list.add(m5);
+    	MouseEventUtil u = new MouseEventUtil(list);
     	//System.out.println(avgSpeed(t1List,x1List));
-    	System.out.println(totalTime(t1List));
+    	System.out.println(u.getTotalTime());
+    	System.out.println(u.getTotalDistance());
+    	System.out.println(u.sliderYVariance());
+    	System.out.println(u.accelerationVariance());
+    	System.out.println(u.speedVariance());
     }
 }

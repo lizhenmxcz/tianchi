@@ -1,9 +1,14 @@
 package com.leezy.tianchi.antiBot.model;
 
-public class MouseEvent  implements Comparable<MouseEvent> {
+public class MouseMoveEvent  implements Comparable<MouseMoveEvent> {
 	private int x;//the x coordinate
 	private int y;//the y coordinate
 	private int time;//the time of event occurred
+	public MouseMoveEvent(int x, int y, int time) {
+		this.x = x;
+		this.y = y;
+		this.time = time;
+	}
 	public int getX() {
 		return x;
 	}
@@ -23,7 +28,7 @@ public class MouseEvent  implements Comparable<MouseEvent> {
 		this.time = time;
 	}
 	@Override
-	public int compareTo(MouseEvent o) {
+	public int compareTo(MouseMoveEvent o) {
 		// TODO Auto-generated method stub
 		
 		return this.time - o.getTime() ;

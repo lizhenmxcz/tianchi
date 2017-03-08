@@ -36,12 +36,18 @@ public class Features {
 			long allkeynum = 0;   // the count of press key
 			long avgkeyinterval = 0;// the average interval time between key press 
 			//slider feature
-			long slidertrytimes = 0;
 			long slidetotaltime = 0;
 			long slidertotaldistance = 0;
-			long sliderysteady = 0;
+			long slideryvariance = 0;
 			long slideravgspeed = 0;
-			long sliderconstantspeed = 0;
+			long sliderspeedvariance = 0;
+			long slideraccvariance = 0;
+			//move feature
+			long movetotaltime = 0;
+			long movetotaldistance = 0;
+			long moveavgspeed = 0;
+			long movespeedvariance = 0;
+			long moveaccvariance = 0;
 			Record result = context.createOutputRecord(); 
 			try{
 				//result.setString("label", record.getString("label"));
@@ -132,31 +138,28 @@ public class Features {
 				 * extract the slider feature
 				 */
 				String sliderInfo = record.getString("a4");
-				List<String> listSlider=new ArrayList<String>();  
-			       //Pattern p = Pattern.compile("(\\{{^\\}}\\})"); 
-			    //System.out.println(sliderInfo);
-	            Matcher mslider = p.matcher(sliderInfo);  
-			    while(mslider.find()){  
-			    	listSlider.add(mslider.group().substring(0, mslider.group().length()));  
-			    } 
-				int allslidernum = listSlider.size();
-				List<Integer> slidertimeArray = new ArrayList<Integer>();// the slider time array
-				List<Integer> sliderXArray = new ArrayList<Integer>();// the slider x array
-				List<Integer> sliderYArray = new ArrayList<Integer>();// the slider y array
-				for(int j = 0;j< listSlider.size();j++){
-					JsonObject temp=  new JsonParser().parse(listSlider.get(j)).getAsJsonObject();
-					slidertimeArray.add(temp.get("t").getAsInt());
-					sliderXArray.add(temp.get("x").getAsInt());
-					sliderYArray.add(temp.get("y").getAsInt());
-				}
-				slidertrytimes = MouseEventUtil.tryTimes(sliderXArray);
-				slidetotaltime = MouseEventUtil.totalTime(slidertimeArray);
-				slidertotaldistance = MouseEventUtil.totalDistance(sliderXArray);
-				sliderysteady = MouseEventUtil.isYSteady(sliderYArray);
-				slideravgspeed = MouseEventUtil.avgSpeed(slidertimeArray, sliderXArray);
-				sliderconstantspeed = MouseEventUtil.isConstantSpeed(slidertimeArray, sliderXArray);
+				MouseEventUtil mouseEventUtil = new MouseEventUtil();
+				mouseEventUtil.parseSliderEvent(sliderInfo);              
+				slidetotaltime = mouseEventUtil.getTotalTime();
+				slidertotaldistance = mouseEventUtil.getTotalDistance();
+				slideryvariance = mouseEventUtil.sliderYVariance();
+				slideravgspeed = mouseEventUtil.getAvgSpeed();
+				sliderspeedvariance = mouseEventUtil.speedVariance();
+				slideraccvariance = mouseEventUtil.accelerationVariance();
+				/**
+				 * extract the move feature
+				 */
+				String moveInfo = record.getString("a5");
+				MouseEventUtil mouseMoveUtil = new MouseEventUtil();
+				mouseMoveUtil.parseMouseMoveEvent(moveInfo);
+				movetotaltime = mouseMoveUtil.getTotalTime();
+				movetotaldistance = mouseMoveUtil.getTotalDistance();
+				moveavgspeed = mouseMoveUtil.getAvgSpeed();
+				movespeedvariance = mouseMoveUtil.speedVariance();
+				moveaccvariance = mouseMoveUtil.accelerationVariance();
 			}catch(Exception e){
-				
+				//System.out.println(e.getStackTrace());
+				e.printStackTrace();
 			}			
 			result.setBigint("id", record.getBigint("id"));
 			result.setBigint("leftbuttonnum", leftbuttonnum);
@@ -167,16 +170,21 @@ public class Features {
 			result.setBigint("elementavgwaittime", elementavgwaittime);
 			result.setBigint("allkeynum", allkeynum);
 			result.setBigint("avgkeyinterval",avgkeyinterval);
-			result.setBigint("slidertrytimes", slidertrytimes);
 			result.setBigint("slidetotaltime", slidetotaltime);
 			result.setBigint("slidertotaldistance", slidertotaldistance);
-			result.setBigint("sliderysteady", sliderysteady);
+			result.setBigint("slideryvariance", slideryvariance);
 			result.setBigint("slideravgspeed", slideravgspeed);
-			result.setBigint("sliderconstantspeed", sliderconstantspeed);
+			result.setBigint("sliderspeedvariance", sliderspeedvariance);
+			result.setBigint("slideraccvariance", slideraccvariance);
+			result.setBigint("movetotaltime", movetotaltime);
+			result.setBigint("movetotaldistance", movetotaldistance);
+			result.setBigint("moveavgspeed", moveavgspeed);
+			result.setBigint("movespeedvariance", movespeedvariance);
+			result.setBigint("moveaccvariance", moveaccvariance);
 			//long label = record.getString("label").equals("1")?1:0;
-			//result.setString("label", label);
-			long label = Integer.valueOf(record.getString("label"));
-			result.setBigint("label", label);
+			////result.setString("label", label);
+			//long label = Integer.valueOf(record.getString("label"));
+			//result.setBigint("label", label);
 	        context.write(result);
 		}	
 	}
