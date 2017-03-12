@@ -28,21 +28,26 @@ public class Features {
 			long elementnum = 0; //the number of the element that visited
 			long elementavgwaittime = 0;// the stay time for visit a element
 			//button click feature
-			long allbuttonnum = 0; // the count of click button
-			long rightbuttonnum = 0; // the count of click the right button
-			long leftbuttonnum = 0;// the count of click the left button
-			long avgbuttoninterval = 0;// the average interval time between button click 
+			long buttonnum = 0;
+			long buttontotaltime = 0;
+			long buttontotaldistance = 0;
+			long buttonavgspeed = 0;
+			long buttonspeedvariance = 0;
+			long buttonaccvariance = 0; 
 			//key feature
-			long allkeynum = 0;   // the count of press key
-			long avgkeyinterval = 0;// the average interval time between key press 
+			long keynum = 0;   // the count of press key
+			long keytotaltime = 0;// the average interval time between key press 
+			long keyvariance = 0;
 			//slider feature
-			long slidetotaltime = 0;
+			long slidernum = 0;
+			long slidertotaltime = 0;
 			long slidertotaldistance = 0;
 			long slideryvariance = 0;
 			long slideravgspeed = 0;
 			long sliderspeedvariance = 0;
 			long slideraccvariance = 0;
 			//move feature
+			long movenum = 0;
 			long movetotaltime = 0;
 			long movetotaldistance = 0;
 			long moveavgspeed = 0;
@@ -90,68 +95,47 @@ public class Features {
 				 * extract the button click feature
 				 */
 				String buttonInfo = record.getString("a3");
-				List<String> listButton=new ArrayList<String>();  
-			       //Pattern p = Pattern.compile("(\\{{^\\}}\\})"); 
-			     
-	            Matcher mButton = p.matcher(buttonInfo);  
-			    while(mButton.find()){  
-			    	listButton.add(mButton.group().substring(0, mButton.group().length()));  
-			        //System.out.println(m.group().substring(0, m.group().length()));
-			    } 
-				allbuttonnum = listButton.size();
-				int[] timeArray = new int[(int)allbuttonnum];// the button time array
-				for(int j = 0;j< listButton.size();j++){
-					JsonObject temp=  new JsonParser().parse(listButton.get(j)).getAsJsonObject();
-					timeArray[j] = temp.get("time").getAsInt();
-					if(temp.get("button").getAsString().equals("left")){
-						leftbuttonnum++;
-					}
-					else {
-						rightbuttonnum++;
-					}
-				}
-				if(allbuttonnum==0) avgbuttoninterval=-1;
-				else if(allbuttonnum==1) avgbuttoninterval=0;
-				else avgbuttoninterval = ArrayUtil.avgInterval(timeArray);
-				
+				MouseEventUtil  buttonUtil = new MouseEventUtil();
+				buttonUtil.parseButtonEvent(buttonInfo);
+				buttonnum = buttonUtil.getEventSize();
+				buttontotaltime = buttonUtil.getTotalTime();
+				buttontotaldistance = buttonUtil.getTotalDistance();
+				buttonavgspeed = buttonUtil.getAvgSpeed();
+				buttonspeedvariance = buttonUtil.speedVariance();
+				//buttonaccvariance = buttonUtil.accelerationVariance();
+				//System.out.println(buttonaccvariance);
 				/**
 				 * extract the key press feature
 				 */
 				String keyInfo = record.getString("a7");
-				List<String> listKey=new ArrayList<String>();  
-			       //Pattern p = Pattern.compile("(\\{{^\\}}\\})"); 
-			     
-	            Matcher mkey = p.matcher(keyInfo);  
-			    while(mkey.find()){  
-			    	listKey.add(mkey.group().substring(0, mkey.group().length()));  
-			    } 
-				allkeynum = listKey.size();
-				int[] keytimeArray = new int[(int)allkeynum];// the button time array
-				for(int j = 0;j< listKey.size();j++){
-					JsonObject temp=  new JsonParser().parse(listKey.get(j)).getAsJsonObject();
-					keytimeArray[j] = temp.get("time").getAsInt();
-				}
-				if(allkeynum==0) avgkeyinterval=-1;
-				else if(allkeynum==1) avgkeyinterval=0;
-				else avgkeyinterval = ArrayUtil.avgInterval(keytimeArray);
+				MouseEventUtil keyUtil = new MouseEventUtil();
+				keyUtil.parseKeyEvent(keyInfo); 
+				keynum = keyUtil.getEventSize();
+				keytotaltime = keyUtil.getTotalTime();
+				keyvariance = keyUtil.keySpeedVariance();
+				System.out.println(keyvariance);
 				/**
 				 * extract the slider feature
 				 */
 				String sliderInfo = record.getString("a4");
 				MouseEventUtil mouseEventUtil = new MouseEventUtil();
-				mouseEventUtil.parseSliderEvent(sliderInfo);              
-				slidetotaltime = mouseEventUtil.getTotalTime();
+				mouseEventUtil.parseSliderEvent(sliderInfo); 
+				slidernum = mouseEventUtil.getEventSize();
+				slidertotaltime = mouseEventUtil.getTotalTime();
 				slidertotaldistance = mouseEventUtil.getTotalDistance();
 				slideryvariance = mouseEventUtil.sliderYVariance();
 				slideravgspeed = mouseEventUtil.getAvgSpeed();
 				sliderspeedvariance = mouseEventUtil.speedVariance();
 				slideraccvariance = mouseEventUtil.accelerationVariance();
+				//System.out.println(slideraccvariance);
 				/**
 				 * extract the move feature
 				 */
 				String moveInfo = record.getString("a5");
 				MouseEventUtil mouseMoveUtil = new MouseEventUtil();
+
 				mouseMoveUtil.parseMouseMoveEvent(moveInfo);
+				movenum = mouseMoveUtil.getEventSize();
 				movetotaltime = mouseMoveUtil.getTotalTime();
 				movetotaldistance = mouseMoveUtil.getTotalDistance();
 				moveavgspeed = mouseMoveUtil.getAvgSpeed();
@@ -162,20 +146,25 @@ public class Features {
 				e.printStackTrace();
 			}			
 			result.setBigint("id", record.getBigint("id"));
-			result.setBigint("leftbuttonnum", leftbuttonnum);
-			result.setBigint("rightbuttonnum", rightbuttonnum);
-			result.setBigint("allbuttonnum", allbuttonnum);
-			result.setBigint("avgbuttoninterval",avgbuttoninterval);
+			result.setBigint("buttonnum", buttonnum);
+			result.setBigint("buttontotaltime", buttontotaltime);
+			result.setBigint("buttontotaldistance", buttontotaldistance);
+			result.setBigint("buttonavgspeed",buttonavgspeed);
+			//result.setBigint("buttonspeedvariance",buttonspeedvariance);
+			result.setBigint("buttonaccvariance",buttonaccvariance);
 			result.setBigint("elementnum", elementnum);
 			result.setBigint("elementavgwaittime", elementavgwaittime);
-			result.setBigint("allkeynum", allkeynum);
-			result.setBigint("avgkeyinterval",avgkeyinterval);
-			result.setBigint("slidetotaltime", slidetotaltime);
+			result.setBigint("keynum", keynum);
+			result.setBigint("keytotaltime",keytotaltime);
+			result.setBigint("keyvariance",keyvariance);
+			result.setBigint("slidernum", slidernum);
+			result.setBigint("slidertotaltime", slidertotaltime);
 			result.setBigint("slidertotaldistance", slidertotaldistance);
 			result.setBigint("slideryvariance", slideryvariance);
 			result.setBigint("slideravgspeed", slideravgspeed);
 			result.setBigint("sliderspeedvariance", sliderspeedvariance);
 			result.setBigint("slideraccvariance", slideraccvariance);
+			result.setBigint("movenum", movenum);
 			result.setBigint("movetotaltime", movetotaltime);
 			result.setBigint("movetotaldistance", movetotaldistance);
 			result.setBigint("moveavgspeed", moveavgspeed);

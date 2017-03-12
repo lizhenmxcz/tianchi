@@ -1,4 +1,4 @@
 project=example_project
 table=renjiresult
-columns=id:BigInt,elementNum:BigInt,elementAvgWaitTime:BigInt,leftButtonNum:BigInt,rightButtonNum:BigInt,allButtonNum:BigInt,avgButtonInterval:BigInt,allKeyNum:BigInt,avgKeyInterval:BigInt,slidetotaltime:BigInt,slidertotaldistance:BigInt,slideryvariance:BigInt,slideravgspeed:BigInt,sliderspeedvariance:BigInt,slideraccvariance:BigInt,movetotaltime:BigInt,movetotaldistance:BigInt,moveavgspeed:BigInt,movespeedvariance:BigInt,moveaccvariance:BigInt,label:BigInt
+columns=id:BigInt,elementNum:BigInt,elementAvgWaitTime:BigInt,buttonnum:BigInt,buttontotaltime:BigInt,buttontotaldistance:BigInt,buttonavgspeed:BigInt,buttonaccvariance:BigInt,keynum:BigInt,keytotaltime:BigInt,keyvariance:BigInt,slidernum:BigInt,slidertotaltime:BigInt,slidertotaldistance:BigInt,slideryvariance:BigInt,slideravgspeed:BigInt,sliderspeedvariance:BigInt,slideraccvariance:BigInt,movenum:BigInt,movetotaltime:BigInt,movetotaldistance:BigInt,moveavgspeed:BigInt,movespeedvariance:BigInt,moveaccvariance:BigInt,label:BigInt
 

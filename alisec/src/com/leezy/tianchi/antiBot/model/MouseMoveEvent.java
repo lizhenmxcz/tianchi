@@ -9,6 +9,9 @@ public class MouseMoveEvent  implements Comparable<MouseMoveEvent> {
 		this.y = y;
 		this.time = time;
 	}
+	public MouseMoveEvent(int time) {
+		this.time = time;
+	}
 	public int getX() {
 		return x;
 	}

@@ -45,6 +45,41 @@ public class MouseEventUtil {
 		Collections.sort(list);
 		this.mouseEventList = list;  
 	}
+	public void parseButtonEvent(String str){
+		List<MouseMoveEvent> list = new ArrayList<MouseMoveEvent>();
+		List<String> listSlider=new ArrayList<String>();  
+        Matcher mslider = p.matcher(str);  
+	    while(mslider.find()){  
+	    	listSlider.add(mslider.group().substring(0, mslider.group().length()));  
+	    } 
+		for(int j = 0;j< listSlider.size();j++){
+			JsonObject temp=  new JsonParser().parse(listSlider.get(j)).getAsJsonObject();
+			int x = temp.get("x").getAsInt();
+			int y = temp.get("y").getAsInt();
+			int time = temp.get("time").getAsInt();
+			//System.out.print(x);
+			///System.out.print(y);
+			//System.out.println(time);
+			list.add(new MouseMoveEvent(x,y,time));
+		}
+		Collections.sort(list);
+		this.mouseEventList = list;  
+	}
+	public void parseKeyEvent(String str){
+		List<MouseMoveEvent> list = new ArrayList<MouseMoveEvent>();
+		List<String> listSlider=new ArrayList<String>();  
+        Matcher mslider = p.matcher(str);  
+	    while(mslider.find()){  
+	    	listSlider.add(mslider.group().substring(0, mslider.group().length()));  
+	    } 
+		for(int j = 0;j< listSlider.size();j++){
+			JsonObject temp=  new JsonParser().parse(listSlider.get(j)).getAsJsonObject();
+			int time = temp.get("time").getAsInt();
+			list.add(new MouseMoveEvent(time));
+		}
+		Collections.sort(list);
+		this.mouseEventList = list;  
+	}
 	public void parseSliderEvent(String str){
 		List<MouseMoveEvent> list = new ArrayList<MouseMoveEvent>();
 		List<String> listSlider=new ArrayList<String>();  
@@ -116,6 +151,9 @@ public class MouseEventUtil {
 		}
 		return timeList;
 	}
+	public int getEventSize(){
+		return this.mouseEventList.size();
+	}
 	public  int getAvgSpeed(){
 		List<Integer> speedList = getSpeedList(mouseEventList);
 		int totalSpeed = 0;
@@ -132,6 +170,14 @@ public class MouseEventUtil {
 			yList.add(mouseEventList.get(i).getY());
 		}
 		return variance(yList);
+	}
+	public int keySpeedVariance(){
+		List<Integer> timeList = getTimeList(this.mouseEventList);
+		List<Integer> keyIntervalList = new ArrayList<Integer>();
+		for (int i=0;i<timeList.size()-1;i++){
+			keyIntervalList.add(timeList.get(i+1)-timeList.get(i));
+		}
+		return variance(keyIntervalList);
 	}
 	public int variance(List<Integer> list) {   
 	        int m = list.size();  

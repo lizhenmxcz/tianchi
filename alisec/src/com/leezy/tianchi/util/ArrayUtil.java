@@ -6,15 +6,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ArrayUtil {
-	public static int avgInterval(int[] timeArray){
-		int big=timeArray[0],small=timeArray[0];
-		
-		for(int i = 1;i< timeArray.length;i++){
-			if(timeArray[i] > big) big = timeArray[i];
-			if(timeArray[i] < small) small = timeArray[i];
-		}
-		return timeArray.length==1?0:(big-small)/(timeArray.length-1);
-	}
+	public static int variance(List<Integer> list) {   
+        int m = list.size();  
+        double sum=0;  
+        for(int i=0;i<m;i++){//求和  
+            sum += list.get(i);  
+        }  
+        double dAve=sum/m;//求平均值  
+        int dVar=0;  
+        for(int i=0;i<m;i++){//求方差  
+            dVar+=(list.get(i)-dAve)*(list.get(i)-dAve);  
+        }  
+        return m==0?0:dVar/m;  
+} 
 	public static void main(String args[]){
 		//int[] a={2,6,9,23};
 		//System.out.println(avgInterval(a));
